@@ -1,0 +1,36 @@
+{
+  "timestamp": "2026-04-19T11:56:42.597433",
+  "type": "normal",
+  "features": {
+    "packet_count": 83,
+    "unique_src_ips": 10,
+    "unique_dst_ips": 13,
+    "avg_packet_size": 414.4578313253012,
+    "tcp_count": 33,
+    "udp_count": 50
+  }
+}
+{
+  "timestamp": "2026-04-19T11:56:47.609321",
+  "type": "normal",
+  "features": {
+    "packet_count": 12,
+    "unique_src_ips": 7,
+    "unique_dst_ips": 5,
+    "avg_packet_size": 85.08333333333333,
+    "tcp_count": 5,
+    "udp_count": 7
+  }
+}
+{
+  "timestamp": "2026-04-19T11:56:52.624660",
+  "type": "normal",
+  "features": {
+    "packet_count": 6,
+    "unique_src_ips": 3,
+    "unique_dst_ips": 4,
+    "avg_packet_size": 63.833333333333336,
+    "tcp_count": 6,
+    "udp_count": 0
+  }
+}

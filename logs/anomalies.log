@@ -1,0 +1,32 @@
+{"timestamp": "2026-04-19T11:27:56.765674", "features": {"packet_count": 192, "unique_src_ips": 10, "unique_dst_ips": 11, "avg_packet_size": 687.1458333333334, "tcp_count": 137, "udp_count": 45}, "reasons": ["Traffic spike (rule-based)"]}
+{
+  "timestamp": "2026-04-19T11:41:59.608571",
+  "type": "anomaly",
+  "features": {
+    "packet_count": 45,
+    "unique_src_ips": 9,
+    "unique_dst_ips": 10,
+    "avg_packet_size": 341.5777777777778,
+    "tcp_count": 22,
+    "udp_count": 22
+  },
+  "reasons": [
+    "Large packet size anomaly"
+  ]
+}
+{
+  "timestamp": "2026-04-19T11:42:19.652595",
+  "type": "anomaly",
+  "features": {
+    "packet_count": 48,
+    "unique_src_ips": 10,
+    "unique_dst_ips": 10,
+    "avg_packet_size": 480.2291666666667,
+    "tcp_count": 10,
+    "udp_count": 28
+  },
+  "reasons": [
+    "Unusual UDP surge",
+    "Large packet size anomaly"
+  ]
+}

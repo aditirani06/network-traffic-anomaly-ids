@@ -1,5 +1,4 @@
 from pyexpat import features
-
 from scapy.all import sniff, IP, TCP, UDP
 import pandas as pd
 import time
@@ -8,6 +7,7 @@ from threading import Lock
 import threading
 from model import train_model, predict, features_to_vector
 from explainer import explain_anomaly
+from logger import log_anomaly, log_normal
 
 baseline = None
 stop_event = threading.Event()
@@ -113,6 +113,7 @@ def analyze_traffic():
             if baseline:
                 if features["packet_count"] > baseline["packet_count"] * 3:
                     print("🚨 RULE ALERT: Traffic spike detected")
+                    log_anomaly(features, ["Traffic spike (rule-based)"])
                     rule_triggered = True
 
                 if features["unique_src_ips"] > baseline["unique_src_ips"] * 3:
@@ -124,7 +125,7 @@ def analyze_traffic():
 
                 if prediction == -1:
                     print("🚨 ANOMALY DETECTED!")
-
+                    reasons = []
                     if baseline:
                         reasons = explain_anomaly(features, baseline)
 
@@ -135,8 +136,13 @@ def analyze_traffic():
                         else:
                             print("- Unknown pattern (ML detected anomaly)")
 
+                     # ✅ LOG IT
+                    log_anomaly(features, reasons)
+
                 else:
                     print("✅ Normal traffic")
+                    if len(feature_history) % 5 == 0:
+                        log_normal(features)
 
 def get_dataframe():
     with lock:
