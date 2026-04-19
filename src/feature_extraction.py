@@ -1,3 +1,5 @@
+from pyexpat import features
+
 from scapy.all import sniff, IP, TCP, UDP
 import pandas as pd
 import time
@@ -5,7 +7,9 @@ from window_processor import compute_features
 from threading import Lock
 import threading
 from model import train_model, predict, features_to_vector
+from explainer import explain_anomaly
 
+baseline = None
 stop_event = threading.Event()
 lock = Lock()
 traffic_data = []
@@ -62,7 +66,7 @@ feature_history = []
 
 def analyze_traffic():
     global feature_history
-
+    global baseline
     while not stop_event.is_set():
         time.sleep(5)
 
@@ -88,12 +92,49 @@ def analyze_traffic():
                 print("🧠 Training model...")
                 train_model(feature_history)
 
+                # Compute baseline
+                import numpy as np
+                avg = np.mean(feature_history, axis=0)
+
+                baseline = {
+                    "packet_count": float(avg[0]),
+                    "unique_src_ips": float(avg[1]),
+                    "unique_dst_ips": float(avg[2]),
+                    "avg_packet_size": float(avg[3]),
+                    "tcp_count": float(avg[4]),
+                    "udp_count": float(avg[5]),
+            }
+
+            print("📌 Baseline established:", baseline)
+
             # Predict
-            if len(feature_history) > 10:
+            rule_triggered = False
+
+            if baseline:
+                if features["packet_count"] > baseline["packet_count"] * 3:
+                    print("🚨 RULE ALERT: Traffic spike detected")
+                    rule_triggered = True
+
+                if features["unique_src_ips"] > baseline["unique_src_ips"] * 3:
+                    print("🚨 RULE ALERT: Possible scanning activity")
+                    rule_triggered = True
+
+            if not rule_triggered and len(feature_history) > 10:
                 prediction = predict([vector])[0]
 
                 if prediction == -1:
                     print("🚨 ANOMALY DETECTED!")
+
+                    if baseline:
+                        reasons = explain_anomaly(features, baseline)
+
+                        if reasons:
+                            print("🔍 Reasons:")
+                            for r in reasons:
+                                print(f"- {r}")
+                        else:
+                            print("- Unknown pattern (ML detected anomaly)")
+
                 else:
                     print("✅ Normal traffic")
 
