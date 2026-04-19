@@ -4,6 +4,7 @@ import time
 from window_processor import compute_features
 from threading import Lock
 import threading
+from model import train_model, predict, features_to_vector
 
 stop_event = threading.Event()
 lock = Lock()
@@ -57,27 +58,44 @@ def start_capture():
         stop_filter=lambda x: stop_event.is_set()
     )
 
+feature_history = []
 
 def analyze_traffic():
+    global feature_history
+
     while not stop_event.is_set():
         time.sleep(5)
-        if stop_event.is_set():
-            break
+
         with lock:
             if len(traffic_data) == 0:
                 continue
             df = pd.DataFrame(traffic_data)
 
         current_time = time.time()
-
-        # Filter last 5 seconds
         window_df = df[df["timestamp"] > current_time - 5]
 
         features = compute_features(window_df)
 
         if features:
-            print("\n📊 Traffic Summary (Last 5 sec):")
+            vector = features_to_vector(features)
+            feature_history.append(vector)
+
+            print("\n📊 Traffic Summary:")
             print(features)
+
+            # Train model after enough data
+            if len(feature_history) == 10:
+                print("🧠 Training model...")
+                train_model(feature_history)
+
+            # Predict
+            if len(feature_history) > 10:
+                prediction = predict([vector])[0]
+
+                if prediction == -1:
+                    print("🚨 ANOMALY DETECTED!")
+                else:
+                    print("✅ Normal traffic")
 
 def get_dataframe():
     with lock:
